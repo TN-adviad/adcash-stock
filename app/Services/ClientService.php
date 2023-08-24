@@ -13,7 +13,7 @@ class ClientService
 {
     public function purchaseStock(StockPurchaseDTO $dto): array
     {
-        $result = DB::transaction(function () use ($dto) {
+        return DB::transaction(function () use ($dto) {
             $client = Client::findOrFail($dto->getClientId());
             $stock = Stock::findOrFail($dto->getStockId());
 
@@ -38,7 +38,6 @@ class ClientService
 
             return ['success' => true, 'message' => 'Stock purchased successfully'];
         });
-        return $result;
     }
 
     public function getClientTransactions($clientId)
@@ -57,7 +56,7 @@ class ClientService
     public function getMostProfitableClients()
     {
         //todo error handling
-        $mostProfitableClients = DB::table('clients')
+        return DB::table('clients')
             ->select('clients.id', 'clients.name', DB::raw('SUM((s.current_price - t.purchase_price) * t.purchase_quantity) AS total_profit'))
             ->leftJoin('transactions AS t', 'clients.id', '=', 't.client_id')
             ->leftJoin('stocks AS s', 't.stock_id', '=', 's.id')
@@ -65,8 +64,6 @@ class ClientService
             ->orderBy('total_profit', 'desc')
             ->limit(3)
             ->get();
-
-        return $mostProfitableClients;
     }
 
     public function getUserFinancialInfo($clientId): FinancialInfoDTO
