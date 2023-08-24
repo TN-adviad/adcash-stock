@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Services\StockService;
+use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class StockController extends Controller
 {
@@ -15,20 +17,34 @@ class StockController extends Controller
     }
 
     /**
+     * Get the most recent stocks.
+     *
      * @return JsonResponse
      */
     public function getRecentStocks(): JsonResponse
     {
-        $stocks = $this->stockService->getRecentStocks();
-        return response()->json($stocks);
+        try {
+            $stocks = $this->stockService->getRecentStocks();
+            return response()->json($stocks);
+        } catch (Exception $e) {
+            Log::error('Error while fetching recent stocks: ' . $e->getMessage());
+            return response()->json(['message' => 'An error occurred'], 500);
+        }
     }
 
     /**
+     * Get all stocks.
+     *
      * @return JsonResponse
      */
     public function getStocks(): JsonResponse
     {
-        $stocks = $this->stockService->getStocks();
-        return response()->json($stocks);
+        try {
+            $stocks = $this->stockService->getStocks();
+            return response()->json($stocks);
+        } catch (Exception $e) {
+            Log::error('Error while fetching all stocks: ' . $e->getMessage());
+            return response()->json(['message' => 'An error occurred'], 500);
+        }
     }
 }
